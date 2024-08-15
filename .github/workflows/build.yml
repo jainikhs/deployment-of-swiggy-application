@@ -10,6 +10,11 @@ jobs:
     name: Build
     runs-on: [self-hosted]
     steps:
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'  # Specify the version of Node.js you need
+
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for better analysis relevance
