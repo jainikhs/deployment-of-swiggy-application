@@ -29,14 +29,20 @@ jobs:
 
       - name: Docker build and push
         run: |
-          # Run commands to build and push Docker images
+          # Build the Docker image
           docker build -t swiggy-clone .
+          
+          # Tag the Docker image
           docker tag swiggy-clone subham966/swiggy-clone:latest
+          
+          # Login to Docker Hub
           echo "${{ secrets.Dockerhub_token }}" | docker login -u "${{ secrets.Dockerhub_username }}" --password-stdin
+          
+          # Push the Docker image to Docker Hub
           docker push subham966/swiggy-clone:latest
         env:
           DOCKER_CLI_ACI: 1
-          
+
   deploy:
     needs: build
     runs-on: [self-hosted]
