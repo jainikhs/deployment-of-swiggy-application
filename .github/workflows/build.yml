@@ -12,24 +12,27 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
 
       - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      - name: NPM Install
-        run: npm install
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - run: npm install
 
       - name: Docker build and push
         run: |
-          # Run commands to build and push Docker images
-          docker build -t subham966/swiggy-clone:latest .
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t swiggy-clone .
+          docker tag swiggy-clone subham966/swiggy-clone:latest
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           docker push subham966/swiggy-clone:latest
         env:
-          DOCKER_CLI_ACI: 1
+          DOCKER_CLI_EXPERIMENTAL: 1
 
   deploy:
     needs: build
@@ -43,8 +46,8 @@ jobs:
 
       - name: Deploy to container
         run: |
-          docker rm -f swiggy-clone-new || true
-          docker run -d --name swiggy-clone-new -p 3000:3000 subham966/swiggy-clone:latest
+          docker rm -f swiggy-clone || true
+          docker run -d --name swiggy-clone -p 3000:3000 subham966/swiggy-clone:latest
 
       - name: Update kubeconfig
         run: aws eks --region ap-south-1 update-kubeconfig --name EKS_CLOUD
