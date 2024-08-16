@@ -13,20 +13,23 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          
       - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
       - uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Specify the Node.js version you need
+          node-version: '16'
+
       - run: npm install
-        
+
       - name: Docker build and push
         run: |
           docker build -t swiggy-clone .
           docker tag swiggy-clone subham966/swiggy-clone:latest
-          docker login -u ${{ secrets.Dockerhub_username }} -p ${{ secrets.Dockerhub_token }}
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           docker push subham966/swiggy-clone:latest
         env:
           DOCKER_CLI_ACI: 1
