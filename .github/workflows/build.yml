@@ -24,3 +24,17 @@ jobs:
       #   timeout-minutes: 5
       #   env:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - run: npm install
+
+      - name: Docker build and push
+        run: |
+          docker build -t swiggy-clone .
+          docker tag swiggy-clone subham966/swiggy-clone:latest
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          docker push subham966/swiggy-clone:latest
+        env:
+          DOCKER_CLI_ACI: 1
